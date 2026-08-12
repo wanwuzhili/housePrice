@@ -5,7 +5,7 @@ from matplotlib import pyplot as plt
 
 def log_rmse(y_hat, y):
     y_hat = torch.clamp(y_hat, 1, float('inf'))
-    return (torch.sqrt(((torch.log(y_hat) - torch.log(y)) ** 2).mean())).item()
+    return (torch.sqrt(((torch.log(y_hat.reshape(y.shape)) - torch.log(y)) ** 2).mean())).item()
 
 def try_gpu(i=0):
      if torch.cuda.device_count() > i:
@@ -26,7 +26,7 @@ def train_epoch(net, train_iter, loss, updater, device):
     for X_num, X_cat, y in train_iter:
         X_num, X_cat, y = X_num.to(device), X_cat.to(device), y.to(device)
         y_hat = net(X_num, X_cat)
-        l = loss(y_hat, y)
+        l = loss(y_hat.reshape(y.shape), y)
         updater.zero_grad()
         l.backward()
         updater.step()
@@ -56,4 +56,5 @@ def train(net, train_iter, valid_iter, lr, num_epochs, device):
     plt.plot(x, l_train, label='train loss')
     plt.plot(x, l_valid, label='valid loss')
     plt.legend()
+    plt.savefig('loss.png')
     plt.show()

@@ -12,11 +12,11 @@ test_num, test_cat = ds.preprocess_test(test_data)
 
 le_dict = joblib.load('./le_dict.pkl')
 static_dict = joblib.load('./static_dict.pkl')
-num_types = [len(le.classes_) for le in le_dict.values]
+num_types = [len(le.classes_) for le in le_dict.values()]
 num_embs = [round(math.sqrt(n)) for n in num_types]
-num_numeric = len(static_dict.values)
+num_numeric = len(static_dict.values())
 net = m.HouseNet(num_types=num_types, num_embs=num_embs, num_numeric=num_numeric)
-net.load_state_dict(torch.load('model.pth'))
+net.load_state_dict(torch.load('model_lr.01_epoch50.pth'))
 
 # predict and submission
 if isinstance(net, torch.nn.Module):
