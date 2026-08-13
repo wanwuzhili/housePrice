@@ -3,10 +3,8 @@ import torch
 from torch.utils.data import Dataset, DataLoader
 from sklearn.preprocessing import LabelEncoder
 import joblib
+import yaml
 
-
-def load_data(path):
-    return pd.read_csv(path)
 
 def preprocess_train(df, num_rare):
     train_features = pd.concat((df.iloc[:, 1], df.iloc[:, 3:]), axis=1)
@@ -106,9 +104,20 @@ class HouseDataset(Dataset):
     def __getitem__(self, idx):
         return self.numeric[idx], self.categorical[idx], self.label[idx]
 
-def get_data_loader(root, batch_size, num_rare):
-    train_data = load_data(root)
-    numeric, categorical, label = preprocess_train(train_data, num_rare=num_rare)
+def get_data_loader(batch_size, num_rare):
+    #load configs
+    with open('./configs/configs.yaml', "r") as f:
+        configs = yaml.safe_load(f)
+
+    processed_data_train_path = configs['processed_data_path'] + 'processed_train.pth'
+    if configs['need_preprocess']:
+        raw_data_train_path = configs['raw_data_path'] + 'train.csv'
+        train_data = pd.read_csv(raw_data_train_path)
+        numeric, categorical, label = preprocess_train(train_data, num_rare=num_rare)
+        torch.save((numeric, categorical, label), processed_data_train_path)
+    else:
+        numeric, categorical, label = torch.load(processed_data_train_path)
+    
     num_train = round(0.8 * len(label))
     dataset_train = HouseDataset(numeric[:num_train, :], categorical[:num_train, :], label[:num_train])
     dataset_valid = HouseDataset(numeric[num_train:, :], categorical[num_train:, :], label[num_train:])

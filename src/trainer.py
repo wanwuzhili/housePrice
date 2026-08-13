@@ -35,14 +35,14 @@ def train_epoch(net, train_iter, loss, updater, device):
 
     return sum(ls) / len(ls)
 
-def train(net, train_iter, valid_iter, lr, num_epochs, device):
+def train(net, train_iter, valid_iter, lr, weight_decay, num_epochs, device):
     if isinstance(net, nn.Module):
             net.train()
 
     print(f'train on {device}')
     net = net.to(device)
     loss = nn.MSELoss()
-    updater = torch.optim.Adam(net.parameters(), lr=lr)
+    updater = torch.optim.Adam(net.parameters(), lr=lr, weight_decay=weight_decay)
 
     l_train, l_valid = [], []
     for epoch in range(num_epochs):
