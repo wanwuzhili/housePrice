@@ -4,5 +4,4 @@ past/
 .ipynb_checkpoints/
 le_dict.pkl
 static_dict.pkl
-*.pth
 *.pt
